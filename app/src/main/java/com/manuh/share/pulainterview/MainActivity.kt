@@ -1,13 +1,18 @@
 package com.manuh.share.pulainterview
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.manuh.share.pulainterview.adapter.OptionsAdapter
 import com.manuh.share.pulainterview.model.En
 import com.manuh.share.pulainterview.model.Option
-import com.manuh.share.pulainterview.model.Question
 import com.manuh.share.pulainterview.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,45 +20,104 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     lateinit var viewModel: AppViewModel
-    lateinit var question: TextView
+    var question: TextView? = null
+    var editTextAnswer: EditText? = null
+    var options: List<Option?>? = null
+    var mAdapter: OptionsAdapter? = null
+    private lateinit var rvOptions: RecyclerView
+    lateinit var navigate: Button
+    lateinit var currentQuestion: String
+    var count: Int? = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        question = findViewById(R.id.question)
+        question = findViewById(R.id.textViewQuestion)
+        rvOptions = findViewById(R.id.rvOptions)
+        navigate = findViewById(R.id.buttonNavigate)
+        editTextAnswer = findViewById(R.id.editTextAnswer)
 
-//        val navHostFragment =
-//            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-//        val navController = navHostFragment.navController
-//
-//        navController.navigate(R.id.citiesFragment)
 
-        var
+        rvOptions.adapter = mAdapter
+        rvOptions.layoutManager = LinearLayoutManager(this)
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
         viewModel.getItem()
         viewModel.getResponse()?.observe(this) { item ->
-            question.text = item?.start_question_id?.getString()
-            Toast.makeText(
-                this,
-                item?.start_question_id?.let { getOptionsCount(it) }.toString(),
-                Toast.LENGTH_LONG
-            ).show()
+            currentQuestion = item!!.start_question_id
+            question?.text = currentQuestion.getString()
+
+            editTextAnswer?.visibility = View.VISIBLE
+            rvOptions.visibility = View.GONE
+
+            if (getOptionsCount(item.start_question_id) > 0) {
+                question?.text = currentQuestion.getString()
+
+                editTextAnswer?.visibility = View.GONE
+                rvOptions.visibility = View.VISIBLE
+
+                options = getOptions(item.start_question_id)
+
+                mAdapter = OptionsAdapter(options!!.toMutableList())
+                rvOptions.adapter = mAdapter
+                mAdapter?.updateData(options!!.toMutableList())
+            }
         }
 
-//        viewModel.getOptions("q_farmer_gender")?.observe(this) { item ->
-//            Toast.makeText(this, item?.size.toString(), Toast.LENGTH_LONG).show()
-//        }
+        navigate.text = "Next"
+        navigate.setOnClickListener {
+            val question = viewModel.getQuestion(currentQuestion)
 
-//        Toast.makeText(this, "q_farmer_name".getString(), Toast.LENGTH_LONG).show()
+            val questions = viewModel.getQuestions()
+
+            if (count!! == questions?.size!!) {
+                count = 0
+                recreate()
+            } else {
+                clickNext(question!!.next)
+            }
+
+        }
 
     }
 
-    private fun nextQuestion(id: String): String {
-        val question: Question? = viewModel.getQuestion(id)
-        return question?.next!!.getString()
+    @SuppressLint("SetTextI18n")
+    private fun clickNext(id: String) {
+        count = count!! + 1
+
+        currentQuestion = id
+
+        question?.text = currentQuestion.getString()
+
+        val questions = viewModel.getQuestions()
+
+        when (count) {
+            questions?.size -> {
+                navigate.text = "Finish"
+            }
+            else -> {
+                navigate.text = "Next"
+            }
+        }
+        editTextAnswer?.visibility = View.VISIBLE
+        rvOptions.visibility = View.GONE
+
+        if (getOptionsCount(id) > 0) {
+            question?.text = currentQuestion.getString()
+
+            editTextAnswer?.visibility = View.GONE
+            rvOptions.visibility = View.VISIBLE
+
+            options = getOptions(id)
+
+            mAdapter = OptionsAdapter(options!!.toMutableList())
+            rvOptions.adapter = mAdapter
+            mAdapter?.updateData(options!!.toMutableList())
+        }
+
     }
+
 
     private fun getOptions(id: String): List<Option?>? {
         return viewModel.getOptions(id)

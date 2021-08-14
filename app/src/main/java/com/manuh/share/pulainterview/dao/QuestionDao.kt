@@ -14,4 +14,7 @@ interface QuestionDao {
 
     @Query("SELECT * FROM questions_table WHERE id=:id")
     fun getQuestion(id: String): Question?
+
+    @Query("SELECT * FROM questions_table")
+    fun getQuestions(): List<Question?>?
 }

@@ -11,7 +11,7 @@ import com.manuh.share.pulainterview.R
 import com.manuh.share.pulainterview.model.Option
 
 class OptionsAdapter(
-    var mList: MutableList<Option>
+    var mList: MutableList<Option?>
 ) :
     RecyclerView.Adapter<OptionsAdapter.ViewHolder>() {
 
@@ -34,12 +34,12 @@ class OptionsAdapter(
 
         val item = mList[position]
         with(holder) {
-            optionName.text = item.value
+            optionName.text = item?.value
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateData(list: MutableList<Option>) {
+    fun updateData(list: MutableList<Option?>) {
         mList = list
         notifyDataSetChanged()
     }

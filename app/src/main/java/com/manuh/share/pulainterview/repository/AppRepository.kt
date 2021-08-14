@@ -55,4 +55,6 @@ class AppRepository @Inject constructor(
     fun getOptions(id: String):List<Option?>? = optionsDao!!.getOptions(id)
 
     fun getResponse(): LiveData<Response?>? = responseDao!!.getResponse()
+
+    fun getQuestions(): List<Question?>? = questionDao!!.getQuestions()
 }

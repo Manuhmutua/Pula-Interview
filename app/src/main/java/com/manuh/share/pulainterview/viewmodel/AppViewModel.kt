@@ -50,6 +50,8 @@ class AppViewModel @Inject constructor(var repository: AppRepository?) :
 
     fun getResponse(): LiveData<Response?>? = repository!!.getResponse()
 
+    fun getQuestions(): List<Question?>? = repository!!.getQuestions()
+
     companion object {
         private const val TAG = "ItemViewModel"
     }
