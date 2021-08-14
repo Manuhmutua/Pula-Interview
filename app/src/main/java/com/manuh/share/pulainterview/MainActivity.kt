@@ -7,10 +7,12 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.manuh.share.pulainterview.adapter.OptionsAdapter
+import com.manuh.share.pulainterview.model.Answer
 import com.manuh.share.pulainterview.model.En
 import com.manuh.share.pulainterview.model.Option
 import com.manuh.share.pulainterview.viewmodel.AppViewModel
@@ -72,6 +74,7 @@ class MainActivity : AppCompatActivity() {
             val questions = viewModel.getQuestions()
 
             if (count!! == questions?.size!!) {
+                editTextAnswer?.setText("")
                 count = 0
                 recreate()
             } else {
@@ -87,6 +90,8 @@ class MainActivity : AppCompatActivity() {
         count = count!! + 1
 
         currentQuestion = id
+
+        editTextAnswer?.setText("")
 
         question?.text = currentQuestion.getString()
 
@@ -115,6 +120,9 @@ class MainActivity : AppCompatActivity() {
             rvOptions.adapter = mAdapter
             mAdapter?.updateData(options!!.toMutableList())
         }
+
+//        val answer = Answer(0, id, editTextAnswer?.text.toString())
+//        viewModel.insertAnswer(answer)
 
     }
 

@@ -52,6 +52,8 @@ class AppViewModel @Inject constructor(var repository: AppRepository?) :
 
     fun getQuestions(): List<Question?>? = repository!!.getQuestions()
 
+    fun insertAnswer(answer: Answer) = repository!!.insertAnswer(answer)
+
     companion object {
         private const val TAG = "ItemViewModel"
     }
