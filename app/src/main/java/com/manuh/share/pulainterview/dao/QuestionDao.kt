@@ -13,5 +13,5 @@ interface QuestionDao {
     fun insertQuestion(question: Question)
 
     @Query("SELECT * FROM questions_table WHERE id=:id")
-    fun getQuestion(id: String): LiveData<Question?>?
+    fun getQuestion(id: String): Question?
 }

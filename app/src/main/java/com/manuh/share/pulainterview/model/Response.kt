@@ -23,7 +23,7 @@ data class Response(
 
     @SerializedName("strings")
     @Ignore
-    var strings: En?
+    var strings: Strings?
 ) {
     constructor() : this("", "", null, null)
 }

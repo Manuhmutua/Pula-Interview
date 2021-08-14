@@ -1,5 +1,6 @@
 package com.manuh.share.pulainterview.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -11,6 +12,6 @@ interface OptionsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertOption(option: Option)
 
-    @Query("SELECT * FROM options_table WHERE display_text=:displayText")
-    fun getOptions(displayText: String): Option?
+    @Query("SELECT * FROM options_table WHERE question_id=:question_id")
+    fun getOptions(question_id: String): List<Option?>?
 }

@@ -1,11 +1,9 @@
 package com.manuh.share.pulainterview.viewmodel
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.manuh.share.pulainterview.model.Question
-import com.manuh.share.pulainterview.model.Response
+import com.manuh.share.pulainterview.model.*
 import com.manuh.share.pulainterview.repository.AppRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -23,11 +21,16 @@ class AppViewModel @Inject constructor(var repository: AppRepository?) :
                 val item: Response? = itemResponse
                 if (item != null) {
                     repository!!.insertResponse(item)
-                    item.strings?.let { repository!!.insertEn(it) }
+                    item.strings?.en.let {
+                        repository!!.insertEn(it!!)
+                        Log.i("Question:", it.q_farmer_gender)
+                    }
                     item.questions?.forEach { question ->
                         repository!!.insertQuestion(question)
                         question.options?.forEach { option ->
-                            repository!!.insertOption(option)
+                            Log.i("OPTION:", option.display_text)
+                            val o = Option(question.id, option.value, option.display_text)
+                            repository!!.insertOption(o)
                         }
                     }
                 }
@@ -39,7 +42,13 @@ class AppViewModel @Inject constructor(var repository: AppRepository?) :
                 { error -> Log.e(TAG, "getItem: " + error.message) })
     }
 
-    fun getQuestion(id: String): LiveData<Question?>? = repository!!.getQuestion(id)
+    fun getQuestion(id: String): Question? = repository!!.getQuestion(id)
+
+    fun getEn(): En? = repository!!.getEn()
+
+    fun getOptions(id: String): List<Option?>? = repository!!.getOptions(id)
+
+    fun getResponse(): LiveData<Response?>? = repository!!.getResponse()
 
     companion object {
         private const val TAG = "ItemViewModel"

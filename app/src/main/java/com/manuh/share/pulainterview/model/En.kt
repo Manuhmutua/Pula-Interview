@@ -3,13 +3,15 @@ package com.manuh.share.pulainterview.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "en_table")
 data class En(
     @ColumnInfo(name = "id")
-    @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    @PrimaryKey(autoGenerate = false)
+    @Expose
+    var id: Int = 0,
 
     @SerializedName("q_farmer_name")
     @ColumnInfo(name = "q_farmer_name")
@@ -34,6 +36,6 @@ data class En(
     @SerializedName("q_size_of_farm")
     @ColumnInfo(name = "q_size_of_farm")
     var q_size_of_farm: String
-){
+) {
     constructor() : this(0, "", "", "", "", "", "")
 }
