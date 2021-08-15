@@ -57,4 +57,8 @@ class AppRepository @Inject constructor(
     fun getResponse(): LiveData<Response?>? = responseDao!!.getResponse()
 
     fun getQuestions(): List<Question?>? = questionDao!!.getQuestions()
+
+    fun updateAnswer(answer: Answer?) = answerDao!!.updateAnswer(answer)
+
+    fun updateLand(amount: String, id: String) = answerDao!!.updateLand(amount, id)
 }

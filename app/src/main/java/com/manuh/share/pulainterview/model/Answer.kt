@@ -9,16 +9,20 @@ import com.google.gson.annotations.SerializedName
 data class Answer(
     @SerializedName("id")
     @ColumnInfo(name = "id")
-    @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    @PrimaryKey(autoGenerate = false)
+    var id: String,
 
-    @SerializedName("question_id")
-    @ColumnInfo(name = "question_id")
-    var question_id: String,
+    @SerializedName("farmer_name")
+    @ColumnInfo(name = "farmer_name")
+    var farmer_name: String,
 
-    @SerializedName("question_answer")
-    @ColumnInfo(name = "question_answer")
-    var question_answer: String
+    @SerializedName("farmer_gender")
+    @ColumnInfo(name = "farmer_gender")
+    var farmer_gender: String,
+
+    @SerializedName("farmer_land")
+    @ColumnInfo(name = "farmer_land")
+    var farmer_land: String
 ) {
-    constructor() : this(0, "", "")
+    constructor() : this("", "", "", "")
 }

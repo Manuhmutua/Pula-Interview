@@ -28,7 +28,7 @@ class OptionsAdapter(
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO
 
-    private var lastCheckedPosition = -1
+    private var lastCheckedPosition = 0
     var copyOfLastCheckedPosition: Int = 0
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -64,7 +64,6 @@ class OptionsAdapter(
             launch {
                 setOptionIndex(lastCheckedPosition, v.context)
             }
-
 
         }
     }

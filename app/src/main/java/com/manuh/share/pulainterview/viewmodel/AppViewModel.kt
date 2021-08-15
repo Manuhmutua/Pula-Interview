@@ -23,12 +23,10 @@ class AppViewModel @Inject constructor(var repository: AppRepository?) :
                     repository!!.insertResponse(item)
                     item.strings?.en.let {
                         repository!!.insertEn(it!!)
-                        Log.i("Question:", it.q_farmer_gender)
                     }
                     item.questions?.forEach { question ->
                         repository!!.insertQuestion(question)
                         question.options?.forEach { option ->
-                            Log.i("OPTION:", option.display_text)
                             val o = Option(question.id, option.value, option.display_text)
                             repository!!.insertOption(o)
                         }
@@ -53,6 +51,10 @@ class AppViewModel @Inject constructor(var repository: AppRepository?) :
     fun getQuestions(): List<Question?>? = repository!!.getQuestions()
 
     fun insertAnswer(answer: Answer) = repository!!.insertAnswer(answer)
+
+    fun updateAnswer(answer: Answer) = repository!!.updateAnswer(answer)
+
+    fun updateLand(amount: String, id: String) = repository!!.updateLand(amount, id)
 
     companion object {
         private const val TAG = "ItemViewModel"
