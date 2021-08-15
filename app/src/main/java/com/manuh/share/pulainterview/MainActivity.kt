@@ -1,25 +1,42 @@
 package com.manuh.share.pulainterview
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.manuh.share.pulainterview.adapter.OptionsAdapter
-import com.manuh.share.pulainterview.model.Answer
+import com.manuh.share.pulainterview.datastore.OptionManager
 import com.manuh.share.pulainterview.model.En
 import com.manuh.share.pulainterview.model.Option
 import com.manuh.share.pulainterview.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
+import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.IO
+
+    val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "option_index")
 
     lateinit var viewModel: AppViewModel
     var question: TextView? = null
@@ -28,12 +45,15 @@ class MainActivity : AppCompatActivity() {
     var mAdapter: OptionsAdapter? = null
     private lateinit var rvOptions: RecyclerView
     lateinit var navigate: Button
-    lateinit var currentQuestion: String
+    var currentQuestion: String? = ""
     var count: Int? = 0
+    var optionManager: OptionManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        optionManager = OptionManager(this)
 
         question = findViewById(R.id.textViewQuestion)
         rvOptions = findViewById(R.id.rvOptions)
@@ -47,21 +67,23 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
         viewModel.getItem()
         viewModel.getResponse()?.observe(this) { item ->
-            currentQuestion = item!!.start_question_id
-            question?.text = currentQuestion.getString()
+            if(item != null)
+            currentQuestion = item.start_question_id
+            question?.text = currentQuestion!!.getString()
 
             editTextAnswer?.visibility = View.VISIBLE
             rvOptions.visibility = View.GONE
 
-            if (getOptionsCount(item.start_question_id) > 0) {
-                question?.text = currentQuestion.getString()
+            if(item != null)
+            if (getOptionsCount(item!!.start_question_id) > 0) {
+                question?.text = currentQuestion!!.getString()
 
                 editTextAnswer?.visibility = View.GONE
                 rvOptions.visibility = View.VISIBLE
 
                 options = getOptions(item.start_question_id)
 
-                mAdapter = OptionsAdapter(options!!.toMutableList())
+                mAdapter = OptionsAdapter(options!!.toMutableList(), this)
                 rvOptions.adapter = mAdapter
                 mAdapter?.updateData(options!!.toMutableList())
             }
@@ -69,7 +91,7 @@ class MainActivity : AppCompatActivity() {
 
         navigate.text = "Next"
         navigate.setOnClickListener {
-            val question = viewModel.getQuestion(currentQuestion)
+            val question = viewModel.getQuestion(currentQuestion!!)
 
             val questions = viewModel.getQuestions()
 
@@ -93,7 +115,7 @@ class MainActivity : AppCompatActivity() {
 
         editTextAnswer?.setText("")
 
-        question?.text = currentQuestion.getString()
+        question?.text = currentQuestion!!.getString()
 
         val questions = viewModel.getQuestions()
 
@@ -109,23 +131,24 @@ class MainActivity : AppCompatActivity() {
         rvOptions.visibility = View.GONE
 
         if (getOptionsCount(id) > 0) {
-            question?.text = currentQuestion.getString()
+            question?.text = currentQuestion!!.getString()
 
             editTextAnswer?.visibility = View.GONE
             rvOptions.visibility = View.VISIBLE
 
             options = getOptions(id)
 
-            mAdapter = OptionsAdapter(options!!.toMutableList())
+            mAdapter = OptionsAdapter(options!!.toMutableList(), this)
             rvOptions.adapter = mAdapter
             mAdapter?.updateData(options!!.toMutableList())
+
+            optionManager?.indexFlow?.asLiveData()?.observe(this) {
+                Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
+            }
+
         }
 
-//        val answer = Answer(0, id, editTextAnswer?.text.toString())
-//        viewModel.insertAnswer(answer)
-
     }
-
 
     private fun getOptions(id: String): List<Option?>? {
         return viewModel.getOptions(id)
