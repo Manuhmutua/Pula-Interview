@@ -103,7 +103,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             } else {
                 clickNext(question!!.next)
             }
-
         }
 
         val constraints = Constraints.Builder()
