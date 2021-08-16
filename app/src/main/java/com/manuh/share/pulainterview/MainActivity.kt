@@ -3,26 +3,28 @@ package com.manuh.share.pulainterview
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.*
 import com.manuh.share.pulainterview.adapter.OptionsAdapter
 import com.manuh.share.pulainterview.datastore.OptionManager
 import com.manuh.share.pulainterview.model.Answer
 import com.manuh.share.pulainterview.model.En
 import com.manuh.share.pulainterview.model.Option
 import com.manuh.share.pulainterview.viewmodel.AppViewModel
+import com.manuh.share.pulainterview.worker.UploadWorker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), CoroutineScope {
@@ -103,6 +105,18 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             }
 
         }
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiresBatteryNotLow(true)
+            .build()
+
+        val work = PeriodicWorkRequestBuilder<UploadWorker>(15, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .build()
+
+        val workManager = WorkManager.getInstance(this)
+        workManager.enqueueUniquePeriodicWork("", ExistingPeriodicWorkPolicy.KEEP, work)
 
     }
 
